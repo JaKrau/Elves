@@ -21,11 +21,10 @@ $(function () {
   //
   // TODO: Add code to display the current date in the header of the page.
 });
-const twelveHourTime = dayjs().format('hA');
-console.log(twelveHourTime);
-
-let htmlMain = document.getElementById('htmlMain');
 let today = dayjs();
+let currentDay = document.getElementById('currentDay');
+currentDay.textContent = today.format('MMMM DD, YYYY');
+let htmlMain = document.getElementById('htmlMain');
 let hoursInDay = 9;
 let hours = [
   {time: 9, text: "AM", twentyFourHourIndex: 9}, 
@@ -40,9 +39,7 @@ let hours = [
 ];
 
 
-let currentDay = document.getElementById('currentDay');
 
-currentDay.textContent = today.format('MMMM DD, YYYY');
 
 
 for (let hourIndex=0; hourIndex < hoursInDay; hourIndex++) {
@@ -73,12 +70,16 @@ for (let hourIndex=0; hourIndex < hoursInDay; hourIndex++) {
   hourSection.appendChild(textArea);
   hourSection.appendChild(saveButton);
   htmlMain.appendChild(hourSection);
+  
   if (time24 < currentTime24){
-    textArea.className += " past";
+    textArea.className += "";
+    textArea.className += "col-8 col-md-10 description past";
   } else if (time24 == currentTime24) {
-    textArea.className += " present";
+    textArea.className += "";
+    textArea.className += "col-8 col-md-10 description present";
   } else if (time24 > currentTime24) {
-    textArea.className += " future";
+    textArea.className += "";
+    textArea.className += "col-8 col-md-10 description future";
   }
 }
 
