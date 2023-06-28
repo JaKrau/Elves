@@ -20,6 +20,7 @@ $(function () {
   // attribute of each time-block be used to do this?
   //
   // TODO: Add code to display the current date in the header of the page.
+
 });
 let today = dayjs();
 let currentDay = document.getElementById('currentDay');
@@ -82,4 +83,3 @@ for (let hourIndex=0; hourIndex < hoursInDay; hourIndex++) {
     textArea.className += "col-8 col-md-10 description future";
   }
 }
-
