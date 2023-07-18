@@ -1,40 +1,16 @@
-// Wrap all code that interacts with the DOM in a call to jQuery to ensure that
-// the code isn't run until the browser has finished rendering all the elements
-// in the html.
-$(function () {
-  // TODO: Add a listener for click events on the save button. This code should
-  // use the id in the containing time-block as a key to save the user input in
-  // local storage. HINT: What does `this` reference in the click listener
-  // function? How can DOM traversal be used to get the "hour-x" id of the
-  // time-block containing the button that was clicked? How might the id be
-  // useful when saving the description in local storage?
-  //
-  // TODO: Add code to apply the past, present, or future class to each time
-  // block by comparing the id to the current hour. HINTS: How can the id
-  // attribute of each time-block be used to conditionally add or remove the
-  // past, present, and future classes? How can Day.js be used to get the
-  // current hour in 24-hour time?
-  //
-  // TODO: Add code to get any user input that was saved in localStorage and set
-  // the values of the corresponding textarea elements. HINT: How can the id
-  // attribute of each time-block be used to do this?
-  //
-  // TODO: Add code to display the current date in the header of the page.
-
-});
-
-class TimeBlock{
-  constructor(hour, event){
-    this.hour = hour;
-    this.event = event;
-  }
-}
+// In case your task bar minimizes, like mine, and you want to know that they past/present/future styling is displaying in accordance to the time
+const twelveHourTime = dayjs().format('hA');
+console.log(twelveHourTime);
 
 let today = dayjs();
+let htmlMain = document.getElementById('htmlMain');
 let currentDay = document.getElementById('currentDay');
 currentDay.textContent = today.format('MMMM DD, YYYY');
-let htmlMain = document.getElementById('htmlMain');
-let hoursInDay = 9;
+
+// this variable holds the cap to our for loop
+let hoursInDay = 10;
+
+// information for the for loop
 let hours = [
   {time: 9, text: "AM", twentyFourHourIndex: 9}, 
   {time: 10, text: "AM", twentyFourHourIndex: 10}, 
@@ -47,11 +23,8 @@ let hours = [
   {time: 5, text: "PM", twentyFourHourIndex: 17}
 ];
 
-
-
-
-
-for (let hourIndex=0; hourIndex < hoursInDay; hourIndex++) {
+// this loop generates our page contents by pulling from the hours array
+for (let hourIndex=0; hourIndex < hoursInDay - 1; hourIndex++) {
   let time24 = hours[hourIndex].twentyFourHourIndex;
   let timeDisplay = hours[hourIndex].time + hours[hourIndex].text;
   let currentTime24 = dayjs().format('H');
@@ -65,39 +38,38 @@ for (let hourIndex=0; hourIndex < hoursInDay; hourIndex++) {
   hourDiv.textContent = timeDisplay;
   
   let textArea = document.createElement('textarea');
-  textArea.className = "col-8 col-md-10 description";
+  textArea.className = "col-8 col-md-10 description " + timeDisplay;
   textArea.rows = '3';
+  textArea.id = timeDisplay;
+ 
+  // grabs values from local storage using the timeDisplay/id as the key and writes it to the corresponding text field
+  let storedNote = localStorage.getItem(timeDisplay);
+  textArea.textContent = storedNote;
 
-  function addEvent() {
-    myParent = $(this).parent();
-    myIndex = hours[hourIndex].twentyFourHourIndex;
-    note = myParent.children("textarea").val();
-    //localStorage.setItem('note', note);
-    saveEvent(myIndex, note);
-  }
+
   let saveButton = document.createElement('button');
   saveButton.className = 'btn saveBtn col-2 col-md-1';
   saveButton.setAttribute('aria-label', 'save');
-  $(".saveBtn").on("click", addEvent);
-/*
-  $(".saveBtn").on("click", function () {
-    var myParent = $(this).parent();
-    var hour = myParent.data("hour");
-    var event = myParent.children("textarea").val();
-    saveEvent(hour, event);
+
+  // save button functionality, adds textArea contents to local storage, using id's for keys
+  $(".saveBtn").on("click", function() {
+    let hour = $(this).siblings(".description").attr("id");
+    let note = $(this).siblings(".description").val();
+    localStorage.setItem(hour, note);
   });
-*/
+
   let iElement = document.createElement('i');
   iElement.className = 'fas fa-save';
   iElement.setAttribute('aria-hidden', 'true');
-
+  
+  // attaching elements to htmlMain
   saveButton.appendChild(iElement);
-  //textArea.appendChild(saveButton);
   hourSection.appendChild(hourDiv); 
   hourSection.appendChild(textArea);
   hourSection.appendChild(saveButton);
   htmlMain.appendChild(hourSection);
   
+  // dynamically setting class names so our styling can colorize each text box based on local(?) time;
   if (time24 < currentTime24){
     textArea.className += " past";
   } else if (time24 == currentTime24) {
@@ -105,44 +77,54 @@ for (let hourIndex=0; hourIndex < hoursInDay; hourIndex++) {
   } else if (time24 > currentTime24) {
     textArea.className += " future";
   }
-
-  //function saveEvent(hour, event){
-  //  var eventData = [today.format("MM/DD/YYYY"), event];
-  //  localStorage.setItem("timeBlock-" + hour.toString(), JSON.stringify(eventData));
-  //}
-  function saveEvent(myIndex, note){
-    var noteDate = [today.format("MM/DD/YYYY"), note];
-    localStorage.setItem(myIndex.toString(), JSON.stringify(noteDate));
-  }
-  function getEvent(){
-    storedEvent = localStorage.getItem('note');
-    if (storedEvent === null) {
-      return '';
-    } else {
-      textArea.textContent = storedEvent;
-    }
-  }
-  
-  //function getEvent(hour){
-  //  var event = JSON.parse(localStorage.getItem("timeBlock-" + hour.toString()));
-  //  if(event === null){
-  //    return "";
-  //  }
-  //  if(event[0] != today.format("MM/DD/YYYY")){
-  //    clearEvent(hour);
-  //    return "";
-  //  }
-  //  return event[1];
-  //}
-
-  //function clearEvent(hour){
-  //  localStorage.removeItem("timeBlock-" + hour.toString());
-  //}
-
-  getEvent();
 }
 
-function clearSchedule(){
-  localStorage.clear();
+// this block is my solution to the for loop failing to save 5PM to local storage, I don't know why it's failing but I knew I could generate a quick fix this way. The for loop does succeed in reading/writing for the 5PM time block.
+let finalTimeBlockTextArea = htmlMain.children[8].children[1];
+let finalTimeBlockSaveButton = htmlMain.children[8].children[2];
+$(finalTimeBlockSaveButton).on("click", function () {
+  let hour = $(this).siblings(".description").attr("id");
+  let note = $(this).siblings(".description").val();
+  localStorage.setItem(hour, note);
+})
 
+
+//This was my first run at retrieving local storage, once I had this built I realized I could reduce the code to just two lines inside my for loop!
+/*
+function getNotes() {
+  // initializing variables to hold our localStorage contents
+  let timeBlock_9AM = localStorage.getItem("9AM");
+  let timeBlock_10AM = localStorage.getItem("10AM");
+  let timeBlock_11AM = localStorage.getItem("11AM");
+  let timeBlock_12PM = localStorage.getItem("12PM");
+  let timeBlock_1PM = localStorage.getItem("1PM");
+  let timeBlock_2PM = localStorage.getItem("2PM");
+  let timeBlock_3PM = localStorage.getItem("3PM");
+  let timeBlock_4PM = localStorage.getItem("4PM");
+  let timeBlock_5PM = localStorage.getItem("5PM");
+
+  // initializing variables for each text area
+  let textBox_9AM = htmlMain.children[0].children[1];
+  let textBox_10AM = htmlMain.children[1].children[1];
+  let textBox_11AM = htmlMain.children[2].children[1];
+  let textBox_12PM = htmlMain.children[3].children[1];
+  let textBox_1PM = htmlMain.children[4].children[1];
+  let textBox_2PM = htmlMain.children[5].children[1];
+  let textBox_3PM = htmlMain.children[6].children[1];
+  let textBox_4PM = htmlMain.children[7].children[1];
+  let textBox_5PM = htmlMain.children[8].children[1];
+
+  // connecting our timeBlock variable containing local storage Values to our textBox variables (textArea in the above for loop)
+  textBox_9AM.textContent = timeBlock_9AM;
+  textBox_10AM.textContent = timeBlock_10AM;
+  textBox_11AM.textContent = timeBlock_11AM;
+  textBox_12PM.textContent = timeBlock_12PM;
+  textBox_1PM.textContent = timeBlock_1PM;
+  textBox_2PM.textContent = timeBlock_2PM;
+  textBox_3PM.textContent = timeBlock_3PM;
+  textBox_4PM.textContent = timeBlock_4PM;
+  textBox_5PM.textContent = timeBlock_5PM;
 }
+
+getNotes();
+*/
