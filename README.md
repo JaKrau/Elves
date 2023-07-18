@@ -13,7 +13,7 @@ git clone git@github.com:JaKrau/Elves.git
 
 Type events, notes, or tasks into any text area then hit the corresponding save button (denoted by a floppy disk icon) and keep track of your day, hour by hour.
   
-   ![site screenshot](/assets/images/Scheduler.png?raw=true "nav items")
+   ![site screenshot](/Assets/image/Scheduler.png?raw=true)
    
 Link to deployed site: https://jakrau.github.io/Elves/
 
